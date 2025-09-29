@@ -6,40 +6,57 @@ import { Good } from './types/Good';
 
 export const App: React.FC = () => {
   const [goods, setGoods] = useState<Good[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const loadAll = async () => {
-    const allGoods = await goodsAPI.getAll();
+  const handleLoad = async (loader: () => Promise<Good[]>) => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-    setGoods(allGoods);
-  };
+      const data = await loader();
 
-  const load5First = async () => {
-    const firstFive = await goodsAPI.get5First();
-
-    setGoods(firstFive);
-  };
-
-  const loadRed = async () => {
-    const redGoods = await goodsAPI.getRed();
-
-    setGoods(redGoods);
+      setGoods(data);
+    } catch (e) {
+      setError('Failed to load goods. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="App">
       <h1>Dynamic list of Goods</h1>
 
-      <button type="button" data-cy="all-button" onClick={loadAll}>
+      <button
+        type="button"
+        data-cy="all-button"
+        onClick={() => handleLoad(goodsAPI.getAll)}
+        disabled={isLoading}
+      >
         Load all goods
       </button>
 
-      <button type="button" data-cy="first-five-button" onClick={load5First}>
+      <button
+        type="button"
+        data-cy="first-five-button"
+        onClick={() => handleLoad(goodsAPI.get5First)}
+        disabled={isLoading}
+      >
         Load 5 first goods
       </button>
 
-      <button type="button" data-cy="red-button" onClick={loadRed}>
+      <button
+        type="button"
+        data-cy="red-button"
+        onClick={() => handleLoad(goodsAPI.getRed)}
+        disabled={isLoading}
+      >
         Load red goods
       </button>
+
+      {isLoading && <p>Loading goods...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
       <GoodsList goods={goods} />
     </div>
