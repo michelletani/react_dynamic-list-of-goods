@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import './App.scss';
 import { GoodsList } from './GoodsList';
 import * as goodsAPI from './api/goods';
@@ -9,7 +9,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLoad = async (loader: () => Promise<Good[]>) => {
+  const handleLoad = useCallback(async (loader: () => Promise<Good[]>) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -22,7 +22,14 @@ export const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  const loadAll = useCallback(() => handleLoad(goodsAPI.getAll), [handleLoad]);
+  const load5First = useCallback(
+    () => handleLoad(goodsAPI.get5First),
+    [handleLoad],
+  );
+  const loadRed = useCallback(() => handleLoad(goodsAPI.getRed), [handleLoad]);
 
   return (
     <div className="App">
@@ -31,7 +38,7 @@ export const App: React.FC = () => {
       <button
         type="button"
         data-cy="all-button"
-        onClick={() => handleLoad(goodsAPI.getAll)}
+        onClick={loadAll}
         disabled={isLoading}
       >
         Load all goods
@@ -40,7 +47,7 @@ export const App: React.FC = () => {
       <button
         type="button"
         data-cy="first-five-button"
-        onClick={() => handleLoad(goodsAPI.get5First)}
+        onClick={load5First}
         disabled={isLoading}
       >
         Load 5 first goods
@@ -49,7 +56,7 @@ export const App: React.FC = () => {
       <button
         type="button"
         data-cy="red-button"
-        onClick={() => handleLoad(goodsAPI.getRed)}
+        onClick={loadRed}
         disabled={isLoading}
       >
         Load red goods

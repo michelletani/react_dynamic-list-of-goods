@@ -1,6 +1,7 @@
 import { Good } from '../types/Good';
 
-const API_URL = `https://mate-academy.github.io/react_dynamic-list-of-goods/goods.json`;
+const API_URL =
+  'https://mate-academy.github.io/react_dynamic-list-of-goods/goods.json';
 
 export async function getAll(): Promise<Good[]> {
   try {
@@ -12,7 +13,7 @@ export async function getAll(): Promise<Good[]> {
 
     return await response.json();
   } catch (error) {
-    throw new Error('Failed to fetch goods data');
+    throw new Error(`Failed to fetch goods data: ${(error as Error).message}`);
   }
 }
 
